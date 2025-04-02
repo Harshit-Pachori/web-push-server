@@ -19,60 +19,44 @@ app.use(
 );
 
 app.get("/", (req, res) => {
+  console.log("hii there");
+
   res.json({ message: "Server is running..." });
 });
 
 app.post("/api/send-notification", (req, res) => {
-  const { subscription, title, message } = req.body;
+  const { subscription, notificationPayload } = req.body;
+  console.log({ subscription, notificationPayload });
+
   if (!subscription) {
     return NextResponse.json(
       { error: "Notification subscription not found." },
       { status: 400 }
     );
   }
-  console.log("before sendnotification");
 
   const vapidKeys = {
     publicKey: process.env.VAPID_PUBLIC_KEY,
     privateKey: process.env.VAPID_PRIVATE_KEY,
   };
-  console.log({ vapidKeys });
 
   webpush.setVapidDetails(
     "mailto:test@gmail.com",
     vapidKeys.publicKey,
     vapidKeys.privateKey
   );
-  console.log({ webpush });
-
-  const notificationPayload = {
-    title,
-    body: message,
-    icon: "/icon.png",
-    badge: "/icon.png",
-    data: {
-      url: "https://example.com",
-    },
-    sound: "default",
-    vibration: [200, 100, 200],
-  };
-
-  console.log({ subscription, notificationPayload });
 
   try {
     webpush
       .sendNotification(subscription, JSON.stringify(notificationPayload))
       .then(() => {
-        console.log("after sendnotification");
         res.status(200).json({ message: "Notification sent successfully." });
       })
-      .catch((err) => {
-        console.error("Error sending notification", err);
-        res.sendStatus(500);
+      .catch((error) => {
+        res.status(500).json({ error: error?.message });
       });
   } catch (error) {
-    console.error("Error sending notification", err);
-    res.sendStatus(500);
+    res.status(500).json({ error: error?.message });
   }
 });
 
