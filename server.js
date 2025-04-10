@@ -56,6 +56,7 @@ app.post("/api/send-notification", (req, res) => {
         res.status(500).json({ error: error?.message });
       });
   } catch (error) {
+    console.log({ error });
     res.status(500).json({ error: error?.message });
   }
 });
