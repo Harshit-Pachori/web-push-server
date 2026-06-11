@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import webpush from "web-push";
+import webpush from "@web-push-libs/web-push";
 
 dotenv.config({
   path: "./.env",
@@ -29,9 +29,8 @@ app.post("/api/send-notification", (req, res) => {
   console.log({ subscription, notificationPayload });
 
   if (!subscription) {
-    return NextResponse.json(
-      { error: "Notification subscription not found." },
-      { status: 400 }
+    return res.status(400).json(
+      { error: "Notification subscription not found." }
     );
   }
 
